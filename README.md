@@ -2,14 +2,15 @@ npx rn-new proyecto-movil --nativewind --yarn
 
 cd proyecto-movil
 
-yarn install
+yarn
 
-"EXPO_PUBLIC_API_URL=" nueva estructura para el .env
+yarn add dotenv
 
-yarn add @react-navigation/native
+yarn add axios
 
-npx expo install react-native-screens react-native-safe-area-context
+yarn add react-native-safe-area-context
 
-yarn add @react-navigation/native-stack
-
-yarn add @react-navigation/bottom-tabs
+import Constants from "expo-constants";
+// Obtener la URL del .env (inyectada por app.config.js)
+const API_URL = Constants.expoConfig?.extra?.API_URL as string;
+obligatorio en todos los archivos dentro de src

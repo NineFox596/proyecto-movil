@@ -1,48 +1,55 @@
-const API_URL = process.env.EXPO_PUBLIC_API_URL as string;
+import axios from "axios";
+import Constants from "expo-constants";
+
+// -------------------------------
+// Base URL from app.config.js
+// -------------------------------
+const API_URL = Constants.expoConfig?.extra?.API_URL;
 
 if (!API_URL) {
-  console.error(
-    "ERROR: EXPO_PUBLIC_API_URL no está definida. Asegúrate de tener un archivo .env con EXPO_PUBLIC_API_URL="
-  );
+  console.warn("⚠️ API_URL is not defined in app.config.js or .env");
 }
 
-type RequestOptions = {
-  method?: string;
-  body?: any;
-  headers?: Record<string, string>;
-};
+// -------------------------------
+// Axios Instance
+// -------------------------------
+export const api = axios.create({
+  baseURL: API_URL,
+  timeout: 8000,
+  headers: {
+    "Content-Type": "application/json",
+    Accept: "application/json",
+  },
+});
 
-async function request(endpoint: string, options: RequestOptions = {}) {
-  try {
-    const url = `${API_URL.replace(/\/$/, "")}/${endpoint.replace(/^\//, "")}`;
+// -------------------------------
+// Interceptors (Optional but recommended)
+// -------------------------------
 
-    const res = await fetch(url, {
-      method: options.method || "GET",
-      headers: {
-        "Content-Type": "application/json",
-        ...(options.headers || {})
-      },
-      body: options.body ? JSON.stringify(options.body) : undefined,
-    });
+// Request interceptor (can add auth headers later)
+api.interceptors.request.use(
+  (config) => {
+    // Example: Add token later if needed
+    // const token = authStore.getToken();
+    // if (token) config.headers.Authorization = `Bearer ${token}`;
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
-    if (!res.ok) {
-      const errorText = await res.text();
-      throw new Error(`API error ${res.status}: ${errorText}`);
+// Response interceptor to handle API errors cleanly
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response) {
+      console.error(
+        "❌ API Error:",
+        error.response.status,
+        error.response.data
+      );
+    } else {
+      console.error("❌ Network Error:", error.message);
     }
-
-    return await res.json();
-  } catch (err) {
-    console.error("Error en request:", err);
-    throw err;
+    return Promise.reject(error);
   }
-}
-
-export const api = {
-  get: (endpoint: string) => request(endpoint),
-  post: (endpoint: string, body: any) =>
-    request(endpoint, { method: "POST", body }),
-  put: (endpoint: string, body: any) =>
-    request(endpoint, { method: "PUT", body }),
-  delete: (endpoint: string) =>
-    request(endpoint, { method: "DELETE" }),
-};
+);
