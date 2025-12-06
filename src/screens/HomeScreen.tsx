@@ -4,6 +4,7 @@ import { ScrollView, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { getEvents } from '../api/services/events';
 import { Event } from '../api/types';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function HomeScreen({ navigation }: any) {
   const [events, setEvents] = useState<Event[]>([]);
@@ -28,8 +29,8 @@ export default function HomeScreen({ navigation }: any) {
 
   if (loading) {
     return (
-      <SafeAreaView style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" color="#000" />
+      <SafeAreaView className="flex-1 items-center justify-center">
+        <ActivityIndicator size="large" />
         <Text>Cargando eventos...</Text>
       </SafeAreaView>
     );
@@ -37,70 +38,59 @@ export default function HomeScreen({ navigation }: any) {
 
   if (error) {
     return (
-      <SafeAreaView style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <SafeAreaView className="flex-1 items-center justify-center">
         <Text>{error}</Text>
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <ScrollView style={{ padding: 16 }}>
+    <SafeAreaView className="flex-1">
+      <ScrollView className="p-4" showsVerticalScrollIndicator={false}>
         {events.map((ev) => (
-          <View
-            key={ev._id}
-            style={{
-              marginBottom: 20,
-              padding: 12,
-              borderRadius: 10,
-              borderWidth: 1,
-              borderColor: '#ddd',
-              backgroundColor: 'white',
-            }}>
+          <View key={ev._id} className="mb-6 rounded bg-white p-4 shadow-md">
             {/* Imagen */}
             {ev.image ? (
               <Image
                 source={{ uri: ev.image }}
-                style={{
-                  width: '100%',
-                  height: 180,
-                  borderRadius: 8,
-                  marginBottom: 10,
-                }}
+                className="mb-3 h-44 w-full rounded-lg"
                 resizeMode="cover"
               />
             ) : (
-              <View
-                style={{
-                  width: '100%',
-                  height: 180,
-                  borderRadius: 8,
-                  marginBottom: 10,
-                  backgroundColor: '#eee',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}>
-                <Text style={{ color: '#777' }}>Sin imagen</Text>
+              <View className="mb-3 h-44 w-full items-center justify-center rounded-lg bg-gray-200">
+                <Text className="text-gray-500">Sin imagen</Text>
               </View>
             )}
 
             {/* Información */}
-            <Text style={{ fontSize: 18, fontWeight: 'bold' }}>{ev.name}</Text>
-            <Text>Categoría: {ev.category}</Text>
-            <Text>Fecha: {new Date(ev.date).toLocaleString()}</Text>
-            <Text>Ubicación: {ev.location}</Text>
+            <Text className="text-xl font-bold">{ev.name}</Text>
+            <View className="mb-1 flex-row items-center">
+              <Ionicons name="pricetag-outline" size={14} color="#444" />
+              <Text className="ml-2 text-gray-700">{ev.category}</Text>
+            </View>
+            <View className="mb-1 flex-row items-center">
+              <Ionicons name="calendar-outline" size={14} color="#444" />
+              <Text className="ml-2 text-gray-700">{new Date(ev.date).toLocaleString()}</Text>
+            </View>
+            <View className="mb-1 flex-row items-center">
+              <Ionicons name="location-outline" size={14} color="#444" />
+              <Text className="ml-2 text-gray-700">{ev.location}</Text>
+            </View>
 
-            <Text style={{ marginTop: 6, fontWeight: 'bold' }}>Tickets:</Text>
+            <Text className="mt-3 font-semibold">Tickets:</Text>
             {ev.tickets.map((t, i) => (
-              <Text key={i}>
+              <Text key={i} className="text-gray-600">
                 - {t.type}: ${t.price} ({t.available} disponibles)
               </Text>
             ))}
-            {/* Conexión a Event Details */}
-            <Button
-              title="Ver detalles"
-              onPress={() => navigation.navigate('Event Details', { eventId: ev._id })}
-            />
+
+            {/* Botón */}
+            <View className="mt-4">
+              <Button
+                title="Ver detalles"
+                onPress={() => navigation.navigate('Event Details', { eventId: ev._id })}
+              />
+            </View>
           </View>
         ))}
       </ScrollView>
