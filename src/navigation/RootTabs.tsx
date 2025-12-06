@@ -1,6 +1,8 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
+import Constants from "expo-constants";
+const API_URL = Constants.expoConfig?.extra?.API_URL as string;
 
 /* Screens */
 import HomeScreen from '../screens/HomeScreen';

@@ -1,5 +1,7 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import Constants from "expo-constants";
+const API_URL = Constants.expoConfig?.extra?.API_URL as string;
 
 /* Screens & Tabs */
 import RootTabs from './RootTabs';

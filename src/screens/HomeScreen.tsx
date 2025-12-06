@@ -2,8 +2,10 @@ import { View, Text, Image, Button } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { ScrollView, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { getEvents } from '../api/services/events';
-import { Event } from '../api/types';
+import { getEvents } from '../services/events';
+import { Event } from '../types';
+import Constants from "expo-constants";
+const API_URL = Constants.expoConfig?.extra?.API_URL as string;
 
 export default function HomeScreen({ navigation }: any) {
   const [events, setEvents] = useState<Event[]>([]);
@@ -45,6 +47,8 @@ export default function HomeScreen({ navigation }: any) {
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
+      {/* Conexión a Event Details */}
+      <Button title="Go to Details" onPress={() => navigation.navigate('Event Details')} />
       <ScrollView style={{ padding: 16 }}>
         {events.map((ev) => (
           <View
@@ -96,11 +100,6 @@ export default function HomeScreen({ navigation }: any) {
                 - {t.type}: ${t.price} ({t.available} disponibles)
               </Text>
             ))}
-            {/* Conexión a Event Details */}
-            <Button
-              title="Ver detalles"
-              onPress={() => navigation.navigate('Event Details', { eventId: ev._id })}
-            />
           </View>
         ))}
       </ScrollView>
