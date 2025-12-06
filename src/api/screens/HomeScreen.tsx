@@ -1,4 +1,4 @@
-import { View, Text, Image } from 'react-native';
+import { View, Text, Image, Button } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { ScrollView, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -45,6 +45,8 @@ export default function HomeScreen({ navigation }: any) {
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
+      {/* Conexión a Event Details */}
+      <Button title="Go to Details" onPress={() => navigation.navigate('Event Details')} />
       <ScrollView style={{ padding: 16 }}>
         {events.map((ev) => (
           <View
