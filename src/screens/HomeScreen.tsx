@@ -11,6 +11,27 @@ export default function HomeScreen({ navigation }: any) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const loadFilteredEvents = async (category: string, query: string) => {
+    try {
+      setLoading(true);
+
+      const res = await getEvents({
+        category: category !== 'todas' ? category : undefined,
+        q: query || undefined,
+        page: 1,
+        limit: 20,
+      });
+
+      setEvents(res.data);
+    } catch (err) {
+      console.error('ERROR EN BÚSQUEDA:', err);
+      setEvents([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Cargar eventos iniciales
   useEffect(() => {
     async function fetchEvents() {
       try {
@@ -46,7 +67,12 @@ export default function HomeScreen({ navigation }: any) {
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      <SearchBar />
+      <SearchBar
+        onSearch={({ category, query }) => {
+          loadFilteredEvents(category, query);
+        }}
+      />
+
       <ScrollView style={{ padding: 16 }}>
         {events.map((ev) => (
           <View
@@ -59,7 +85,6 @@ export default function HomeScreen({ navigation }: any) {
               borderColor: '#ddd',
               backgroundColor: 'white',
             }}>
-            {/* Imagen */}
             {ev.image ? (
               <Image
                 source={{ uri: ev.image }}
@@ -86,7 +111,6 @@ export default function HomeScreen({ navigation }: any) {
               </View>
             )}
 
-            {/* Información */}
             <Text style={{ fontSize: 18, fontWeight: 'bold' }}>{ev.name}</Text>
             <Text>Categoría: {ev.category}</Text>
             <Text>Fecha: {new Date(ev.date).toLocaleString()}</Text>
@@ -98,7 +122,7 @@ export default function HomeScreen({ navigation }: any) {
                 - {t.type}: ${t.price} ({t.available} disponibles)
               </Text>
             ))}
-            {/* Conexión a Event Details */}
+
             <Button
               title="Ver detalles"
               onPress={() => navigation.navigate('Event Details', { eventId: ev._id })}

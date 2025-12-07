@@ -60,10 +60,14 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
     loadCategories();
   }, []);
 
-  // Debounce cada 300ms
   useEffect(() => {
+    if (!onSearch) return;
+
+    // Evita que se ejecute al montar por primera vez
+    if (selectedCategory === 'todas' && query === '') return;
+
     const timer = setTimeout(() => {
-      if (onSearch) onSearch({ category: selectedCategory, query });
+      onSearch({ category: selectedCategory, query });
     }, 300);
 
     return () => clearTimeout(timer);

@@ -49,7 +49,7 @@ export interface Reservation {
   event_id: string;
   items: ReservationItem[];
   total_price: number;
-  status: "PENDING" | "EXPIRED" | "CONFIRMED";
+  status: 'PENDING' | 'EXPIRED' | 'CONFIRMED';
   created_at: string;
   expires_at: string;
 }
