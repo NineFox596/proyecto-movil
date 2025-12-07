@@ -5,11 +5,32 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { getEvents } from '../api/services/events';
 import { Event } from '../api/types';
 import { Ionicons } from '@expo/vector-icons';
+import SearchBar from '../components/SearchBar';
 
 export default function HomeScreen({ navigation }: any) {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const loadFilteredEvents = async (category: string, query: string) => {
+    try {
+      setLoading(true);
+
+      const res = await getEvents({
+        category: category !== 'todas' ? category : undefined,
+        q: query || undefined,
+        page: 1,
+        limit: 20,
+      });
+
+      setEvents(res.data);
+    } catch (err) {
+      console.error('ERROR EN BÚSQUEDA:', err);
+      setEvents([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     async function fetchEvents() {
@@ -46,6 +67,11 @@ export default function HomeScreen({ navigation }: any) {
 
   return (
     <SafeAreaView className="flex-1">
+      <SearchBar
+        onSearch={({ category, query }) => {
+          loadFilteredEvents(category, query);
+        }}
+      />
       <ScrollView className="p-4" showsVerticalScrollIndicator={false}>
         {events.map((ev) => (
           <View key={ev._id} className="mb-6 rounded bg-white p-4 shadow-md">
