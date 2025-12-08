@@ -37,7 +37,7 @@ export default function RootTabs() {
 
           return <Ionicons name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: '#3e3ef9ff',
+        tabBarActiveTintColor: '#2563EB',
         tabBarInactiveTintColor: 'gray',
       })}>
       <Tab.Screen name="HomeTab" component={HomeScreen} options={{ title: 'Home' }} />

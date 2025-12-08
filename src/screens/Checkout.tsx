@@ -73,12 +73,12 @@ export default function CheckoutScreen({ route, navigation }: any) {
         </View>
 
         <TouchableOpacity
-          className={`mt-6 items-center rounded-xl py-3 ${
+          className={`mt-6 items-center rounded py-3 ${
             timeLeft === 0 ? 'bg-slate-400' : 'bg-blue-600'
           }`}
           disabled={timeLeft === 0}
           onPress={() => alert('Compra realizada con éxito')}>
-          <Text className="text-base font-semibold text-white">
+          <Text className="text-base text-xl font-semibold text-white">
             {timeLeft === 0 ? 'Tiempo agotado' : 'Comprar'}
           </Text>
         </TouchableOpacity>

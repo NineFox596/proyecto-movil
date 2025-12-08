@@ -1,4 +1,4 @@
-import { View, Text, Image, Button } from 'react-native';
+import { View, Text, Image, TouchableOpacity } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { ScrollView, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -91,33 +91,29 @@ export default function HomeScreen({ navigation }: any) {
             )}
 
             {/* Información */}
-            <Text className="text-xl font-bold">{ev.name}</Text>
-            <View className="mb-1 flex-row items-center">
-              <Ionicons name="pricetag-outline" size={14} color="#444" />
-              <Text className="ml-2 text-gray-700">{ev.category}</Text>
+            <Text className="text-2xl font-bold">{ev.name}</Text>
+            <View className="mb-1 mt-0.5 mt-1 flex-row items-center">
+              <Ionicons name="pricetag-outline" size={15} color="#444" />
+              <Text className="text-gl ml-2 text-gray-700">{ev.category}</Text>
             </View>
-            <View className="mb-1 flex-row items-center">
-              <Ionicons name="calendar-outline" size={14} color="#444" />
-              <Text className="ml-2 text-gray-700">{new Date(ev.date).toLocaleString()}</Text>
-            </View>
-            <View className="mb-1 flex-row items-center">
-              <Ionicons name="location-outline" size={14} color="#444" />
-              <Text className="ml-2 text-gray-700">{ev.location}</Text>
-            </View>
-
-            <Text className="mt-3 font-semibold">Tickets:</Text>
-            {ev.tickets.map((t, i) => (
-              <Text key={i} className="text-gray-600">
-                - {t.type}: ${t.price} ({t.available} disponibles)
+            <View className="mb-1 mt-0.5 flex-row items-center">
+              <Ionicons name="calendar-outline" size={15} color="#444" />
+              <Text className="text-gl ml-2 text-gray-700">
+                {new Date(ev.date).toLocaleString()}
               </Text>
-            ))}
+            </View>
+            <View className="mb-1 mt-0.5 flex-row items-center">
+              <Ionicons name="location-outline" size={15} color="#444" />
+              <Text className="text-gl ml-2 text-gray-700">{ev.location}</Text>
+            </View>
 
             {/* Botón */}
             <View className="mt-4">
-              <Button
-                title="Ver detalles"
-                onPress={() => navigation.navigate('Event Details', { eventId: ev._id })}
-              />
+              <TouchableOpacity
+                className="rounded bg-blue-600 px-4 py-3"
+                onPress={() => navigation.navigate('Event Details', { eventId: ev._id })}>
+                <Text className="text-center font-semibold text-white">Ver Detalles</Text>
+              </TouchableOpacity>
             </View>
           </View>
         ))}
