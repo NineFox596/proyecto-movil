@@ -17,6 +17,7 @@ export default function RootTabs() {
   return (
     <Tab.Navigator
       screenOptions={({ route }: { route: { name: string } }) => ({
+        headerShown: false,
         tabBarIcon: ({
           focused,
           color,

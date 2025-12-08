@@ -6,6 +6,7 @@ import { getEvents } from '../api/services/events';
 import { Event } from '../api/types';
 import { Ionicons } from '@expo/vector-icons';
 import SearchBar from '../components/SearchBar';
+import HomeHeader from '../components/HomeHeader';
 
 export default function HomeScreen({ navigation }: any) {
   const [events, setEvents] = useState<Event[]>([]);
@@ -66,7 +67,8 @@ export default function HomeScreen({ navigation }: any) {
   }
 
   return (
-    <SafeAreaView className="flex-1">
+    <View className="flex-1 bg-gray-100">
+      <HomeHeader title="ULA Tickets" />
       <SearchBar
         onSearch={({ category, query }) => {
           loadFilteredEvents(category, query);
@@ -120,6 +122,6 @@ export default function HomeScreen({ navigation }: any) {
           </View>
         ))}
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }

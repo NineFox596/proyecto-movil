@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, Button, ActivityIndicator } from 'react-native';
 import { getEvent } from '../api/services/events';
 import { Event } from '../api/types';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function EventDetail({ route, navigation }: any) {
   // Obtenemos el Id desde Homescreen
@@ -48,15 +49,20 @@ export default function EventDetail({ route, navigation }: any) {
 
   // Vista final
   return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-      {/* No le supe agregar imagenes :( ) */}
-      <Text style={{ fontSize: 22, fontWeight: 'bold' }}>{event?.name}</Text>
-      <Text>Categoría: {event?.category}</Text>
-      <Text>Fecha: {new Date(event?.date || '').toLocaleString()}</Text>
-      <Text>Ubicación: {event?.location}</Text>
+    <SafeAreaView className="flex-1 bg-slate-100">
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+        {/* No le supe agregar imagenes :( ) */}
+        <Text style={{ fontSize: 22, fontWeight: 'bold' }}>{event?.name}</Text>
+        <Text>Categoría: {event?.category}</Text>
+        <Text>Fecha: {new Date(event?.date || '').toLocaleString()}</Text>
+        <Text>Ubicación: {event?.location}</Text>
 
-      {/* Ir a checkout */}
-      <Button title="Go to Checkout" onPress={() => navigation.navigate('Checkout', { eventId })} />
-    </View>
+        {/* Ir a checkout */}
+        <Button
+          title="Go to Checkout"
+          onPress={() => navigation.navigate('Checkout', { eventId })}
+        />
+      </View>
+    </SafeAreaView>
   );
 }
