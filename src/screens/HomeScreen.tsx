@@ -16,28 +16,30 @@ export default function HomeScreen({ navigation }: any) {
 
   const [filters, setFilters] = useState<{ category?: string; query?: string }>({});
 
-  // 🔥 Cargar eventos con filtros + paginación
-  const fetchEvents = async (pageNumber = 1, merge = false) => {
+  const fetchEvents = async (
+    pageNumber = 1,
+    merge = false,
+    opts?: { category?: string; query?: string }
+  ) => {
     try {
       if (pageNumber === 1) setLoading(true);
       else setLoadingMore(true);
 
+      const usedCategory = opts?.category ?? filters.category;
+      const usedQuery = opts?.query ?? filters.query;
+
       const res = await getEvents({
-        category: filters.category !== 'todas' ? filters.category : undefined,
-        q: filters.query || undefined,
+        category: usedCategory && usedCategory !== 'todas' ? usedCategory : undefined,
+        q: usedQuery || undefined,
         limit: 10,
         page: pageNumber,
       });
 
       const newEvents = res.data;
 
-      if (merge) {
-        setEvents((prev) => [...prev, ...newEvents]);
-      } else {
-        setEvents(newEvents);
-      }
+      if (merge) setEvents((prev) => [...prev, ...newEvents]);
+      else setEvents(newEvents);
 
-      // Comprobar si hay más páginas
       setHasMore(newEvents.length >= 10);
     } catch (err) {
       console.error('Error en paginación:', err);
@@ -48,23 +50,21 @@ export default function HomeScreen({ navigation }: any) {
     }
   };
 
-  // ⭐ Ejecutar búsqueda desde SearchBar
   const handleSearch = ({ category, query }: { category: string; query: string }) => {
     setFilters({ category, query });
     setPage(1);
-    fetchEvents(1, false);
+    fetchEvents(1, false, { category, query });
   };
 
-  // Cargar inicial
   useEffect(() => {
-    fetchEvents(1);
+    fetchEvents(1, false);
   }, []);
 
-  // 🔥 Lazy loading - cargar más
   const loadMore = () => {
     if (!hasMore || loadingMore) return;
     const nextPage = page + 1;
     setPage(nextPage);
+
     fetchEvents(nextPage, true);
   };
 
