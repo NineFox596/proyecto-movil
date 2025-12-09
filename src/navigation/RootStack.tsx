@@ -15,7 +15,7 @@ export default function RootStack() {
     <Stack.Navigator screenOptions={{ animation: 'slide_from_right' }}>
       <Stack.Screen name="Tabs" component={RootTabs} options={{ headerShown: false }} />
       <Stack.Screen name="Event Details" component={EventDetail} />
-      <Stack.Screen name="Checkout" component={Checkout} />
+      <Stack.Screen name="Checkout" component={Checkout} options={{ title: 'ULA Tickets' }} />
     </Stack.Navigator>
   );
 }
