@@ -1,9 +1,11 @@
-import { View, Text, Image, Button, ActivityIndicator, FlatList } from 'react-native';
+import { View, Text, Image, TouchableOpacity, ActivityIndicator, FlatList } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { getEvents } from '../api/services/events';
 import { Event } from '../api/types';
-import SearchBar from '../../components/SearchBar';
+import { Ionicons } from '@expo/vector-icons';
+import SearchBar from '../components/SearchBar';
+import HomeHeader from '../components/HomeHeader';
 
 export default function HomeScreen({ navigation }: any) {
   const [events, setEvents] = useState<Event[]>([]);
@@ -16,6 +18,7 @@ export default function HomeScreen({ navigation }: any) {
 
   const [filters, setFilters] = useState<{ category?: string; query?: string }>({});
 
+  // FUNCIÓN GENERAL PARA CARGAR EVENTOS
   const fetchEvents = async (
     pageNumber = 1,
     merge = false,
@@ -50,93 +53,106 @@ export default function HomeScreen({ navigation }: any) {
     }
   };
 
+  // DESDE SEARCHBAR
   const handleSearch = ({ category, query }: { category: string; query: string }) => {
     setFilters({ category, query });
     setPage(1);
     fetchEvents(1, false, { category, query });
   };
 
+  // CARGA INICIAL
   useEffect(() => {
     fetchEvents(1, false);
   }, []);
 
+  // CARGAR MÁS ITEMS (INFINITE SCROLL)
   const loadMore = () => {
     if (!hasMore || loadingMore) return;
     const nextPage = page + 1;
     setPage(nextPage);
-
     fetchEvents(nextPage, true);
   };
 
+  // DISEÑO DEL EVENTO (UI BONITA)
   const renderEvent = ({ item }: { item: Event }) => (
-    <View
-      style={{
-        marginBottom: 20,
-        padding: 12,
-        borderRadius: 10,
-        borderWidth: 1,
-        borderColor: '#ddd',
-        backgroundColor: 'white',
-      }}>
+    <View className="mb-6 rounded bg-white p-4 shadow-md">
+      {/* Imagen */}
       {item.image ? (
         <Image
           source={{ uri: item.image }}
-          style={{ width: '100%', height: 180, borderRadius: 8, marginBottom: 10 }}
+          className="mb-3 h-44 w-full rounded-lg"
           resizeMode="cover"
         />
       ) : (
-        <View
-          style={{
-            width: '100%',
-            height: 180,
-            borderRadius: 8,
-            marginBottom: 10,
-            backgroundColor: '#eee',
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}>
-          <Text style={{ color: '#777' }}>Sin imagen</Text>
+        <View className="mb-3 h-44 w-full items-center justify-center rounded-lg bg-gray-200">
+          <Text className="text-gray-500">Sin imagen</Text>
         </View>
       )}
 
-      <Text style={{ fontSize: 18, fontWeight: 'bold' }}>{item.name}</Text>
-      <Text>Categoría: {item.category}</Text>
-      <Text>Fecha: {new Date(item.date).toLocaleString()}</Text>
-      <Text>Ubicación: {item.location}</Text>
+      {/* Información */}
+      <Text className="text-2xl font-bold">{item.name}</Text>
 
-      <Text style={{ marginTop: 6, fontWeight: 'bold' }}>Tickets:</Text>
-      {item.tickets.map((t, i) => (
-        <Text key={i}>
-          - {t.type}: ${t.price} ({t.available} disponibles)
-        </Text>
-      ))}
+      <View className="mb-1 mt-1 flex-row items-center">
+        <Ionicons name="pricetag-outline" size={15} color="#444" />
+        <Text className="ml-2 text-gray-700">{item.category}</Text>
+      </View>
 
-      <Button
-        title="Ver detalles"
-        onPress={() => navigation.navigate('Event Details', { eventId: item._id })}
-      />
+      <View className="mb-1 flex-row items-center">
+        <Ionicons name="calendar-outline" size={15} color="#444" />
+        <Text className="ml-2 text-gray-700">{new Date(item.date).toLocaleString()}</Text>
+      </View>
+
+      <View className="mb-1 flex-row items-center">
+        <Ionicons name="location-outline" size={15} color="#444" />
+        <Text className="ml-2 text-gray-700">{item.location}</Text>
+      </View>
+
+      {/* Botón */}
+      <View className="mt-4">
+        <TouchableOpacity
+          className="rounded bg-blue-600 px-4 py-3"
+          onPress={() => navigation.navigate('Event Details', { eventId: item._id })}>
+          <Text className="text-center font-semibold text-white">Ver Detalles</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 
+  if (loading) {
+    return (
+      <SafeAreaView className="flex-1 items-center justify-center">
+        <ActivityIndicator size="large" />
+        <Text>Cargando eventos...</Text>
+      </SafeAreaView>
+    );
+  }
+
+  if (error) {
+    return (
+      <SafeAreaView className="flex-1 items-center justify-center">
+        <Text>{error}</Text>
+      </SafeAreaView>
+    );
+  }
+
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <View className="flex-1 bg-gray-100">
+      <HomeHeader title="ULA Tickets" />
+
       <SearchBar onSearch={handleSearch} />
 
-      {loading ? (
-        <ActivityIndicator size="large" style={{ marginTop: 30 }} />
-      ) : (
-        <FlatList
-          data={events}
-          renderItem={renderEvent}
-          keyExtractor={(item) => item._id}
-          contentContainerStyle={{ padding: 16 }}
-          onEndReached={loadMore}
-          onEndReachedThreshold={0.3}
-          ListFooterComponent={
-            loadingMore ? <ActivityIndicator size="large" style={{ marginVertical: 20 }} /> : null
-          }
-        />
-      )}
-    </SafeAreaView>
+      <FlatList
+        data={events}
+        renderItem={renderEvent}
+        keyExtractor={(item) => item._id}
+        contentContainerStyle={{ padding: 16 }}
+        onEndReached={loadMore}
+        onEndReachedThreshold={0.25}
+        showsVerticalScrollIndicator={false}
+        ListFooterComponent={
+          loadingMore ? <ActivityIndicator size="large" className="my-5" /> : null
+        }
+      />
+    </View>
   );
 }

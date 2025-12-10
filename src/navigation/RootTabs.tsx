@@ -6,13 +6,27 @@ import { Ionicons } from '@expo/vector-icons';
 import HomeScreen from '../screens/HomeScreen';
 import Purchases from '../screens/Purchases';
 
-const Tab = createBottomTabNavigator();
+type RootTabParamList = {
+  HomeTab: undefined;
+  Purchases: undefined;
+};
+
+const Tab = createBottomTabNavigator<RootTabParamList>();
 
 export default function RootTabs() {
   return (
     <Tab.Navigator
-      screenOptions={({ route }) => ({
-        tabBarIcon: ({ focused, color, size }) => {
+      screenOptions={({ route }: { route: { name: string } }) => ({
+        headerShown: false,
+        tabBarIcon: ({
+          focused,
+          color,
+          size,
+        }: {
+          focused: boolean;
+          color: string;
+          size: number;
+        }) => {
           let iconName: keyof typeof Ionicons.glyphMap = 'home';
 
           if (route.name === 'HomeTab') {
@@ -23,7 +37,7 @@ export default function RootTabs() {
 
           return <Ionicons name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: '#2E27F5',
+        tabBarActiveTintColor: '#2563EB',
         tabBarInactiveTintColor: 'gray',
       })}>
       <Tab.Screen name="HomeTab" component={HomeScreen} options={{ title: 'Home' }} />
