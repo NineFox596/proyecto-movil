@@ -28,8 +28,8 @@ export default function RootTabs() {
         tabBarActiveTintColor: '#2E27F5',
         tabBarInactiveTintColor: 'gray',
       })}>
-      <Tab.Screen name="HomeTab" component={HomeScreen} options={{ title: 'Home' }} />
-      <Tab.Screen name="Purchases" component={Purchases} options={{ title: 'Purchases' }} />
+      <Tab.Screen name="HomeTab" component={HomeScreen} options={{ title: 'ULA Tickets',  headerTitleAlign: 'center' }} />
+      <Tab.Screen name="Purchases" component={Purchases} options={{ title: 'Mis Compras',  }} />
     </Tab.Navigator>
   );
 }

@@ -2,6 +2,7 @@
 -npx rn-new proyecto-movil --nativewind --yarn  
 -cd proyecto-movil  
 yarn  
+<<<<<<< Updated upstream
 yarn add dotenv  
 yarn add axios  
 yarn add react-native-safe-area-context  
@@ -13,6 +14,10 @@ yarn add @react-navigation/native-stack
 yarn add @react-navigation/native @react-navigation/native-stack  
 
 # importante, en cada archivo dentro de /src tener esto   
+=======
+yarn add @react-native-picker/picker
+# Importante, en cada archivo dentro de /src tener esto   
+>>>>>>> Stashed changes
 import Constants from "expo-constants";  
 // Obtener la URL del .env (inyectada por app.config.js)  
 const API_URL = Constants.expoConfig?.extra?.API_URL as string;

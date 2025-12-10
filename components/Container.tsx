@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 import { SafeAreaView } from 'react-native';
 
 export const Container = ({ children }: { children: React.ReactNode }) => {
@@ -7,3 +8,14 @@ export const Container = ({ children }: { children: React.ReactNode }) => {
 const styles = {
   container: 'flex flex-1 m-6',
 };
+=======
+import { SafeAreaView } from 'react-native';
+
+export const Container = ({ children }: { children: React.ReactNode }) => {
+  return <SafeAreaView className={styles.container}>{children}</SafeAreaView>;
+};
+
+const styles = {
+  container: 'flex flex-1 m-6',
+};
+>>>>>>> Stashed changes

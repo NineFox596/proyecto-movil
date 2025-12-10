@@ -14,7 +14,11 @@ export default function RootStack() {
   return (
     <Stack.Navigator screenOptions={{ animation: 'slide_from_right' }}>
       <Stack.Screen name="Tabs" component={RootTabs} options={{ headerShown: false }} />
+<<<<<<< Updated upstream
       <Stack.Screen name="Event Details" component={EventDetail} />
+=======
+      <Stack.Screen name="Event Details" component={EventDetail} options={{ title: 'ULA Tickets', }} />
+>>>>>>> Stashed changes
       <Stack.Screen name="Checkout" component={Checkout} options={{ title: 'ULA Tickets' }} />
     </Stack.Navigator>
   );

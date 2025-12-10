@@ -7,7 +7,7 @@ import { Event } from '../types';
 import Constants from "expo-constants";
 const API_URL = Constants.expoConfig?.extra?.API_URL as string;
 
-export default function HomeScreen({ navigation }: any) {
+export default function HomeScreen({ navigation }: any ) {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
