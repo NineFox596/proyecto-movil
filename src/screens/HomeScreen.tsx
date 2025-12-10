@@ -68,15 +68,15 @@ export default function HomeScreen({ navigation }: any) {
 
   return (
     <View className="flex-1 bg-gray-100">
-      <HomeHeader title="ULA Tickets" />
+      <HomeHeader title="ULA Tickets" isHome />
       <SearchBar
         onSearch={({ category, query }) => {
           loadFilteredEvents(category, query);
         }}
       />
-      <ScrollView className="p-4" showsVerticalScrollIndicator={false}>
+      <ScrollView className="mt-1 p-4" showsVerticalScrollIndicator={false}>
         {events.map((ev) => (
-          <View key={ev._id} className="mb-6 rounded bg-white p-4 shadow-md">
+          <View key={ev._id} className="mb-4 rounded bg-white p-4 shadow-md">
             {/* Imagen */}
             {ev.image ? (
               <Image

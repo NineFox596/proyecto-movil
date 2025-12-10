@@ -15,12 +15,13 @@ export default function RootStack() {
       screenOptions={{
         animation: 'slide_from_right',
         header: ({ options }) => <CustomHeader title={options.title} />,
+        headerTransparent: true,
       }}>
       <Stack.Screen name="Tabs" component={RootTabs} options={{ headerShown: false }} />
       <Stack.Screen
         name="Event Details"
         component={EventDetail}
-        options={{ title: 'Event Details' }}
+        options={{ title: 'Detalles del evento' }}
       />
       <Stack.Screen name="Checkout" component={Checkout} options={{ title: 'Checkout' }} />
     </Stack.Navigator>
