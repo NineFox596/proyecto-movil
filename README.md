@@ -12,12 +12,14 @@ yarn add @react-navigation/elements
 yarn add @react-navigation/native-stack  
 yarn add @react-navigation/native @react-navigation/native-stack  
 yarn add @react-native-picker/picker
+yarn add @react-native-async-storage/async-storage
 
 # Importante, en cada archivo dentro de /src tener esto   
 import Constants from "expo-constants";  
 // Obtener la URL del .env (inyectada por app.config.js)  
 const API_URL = Constants.expoConfig?.extra?.API_URL as string;
 # Obligatorio en todos los archivos dentro de src
+
 
 
 
