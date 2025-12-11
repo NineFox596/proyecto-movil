@@ -1,47 +1,96 @@
-import React from 'react';
-import { useEffect, useState } from 'react';
-import { View, Text, ActivityIndicator, ScrollView } from 'react-native';
-import { useLocalSearchParams, Link } from 'expo-router';
+import React, { useEffect, useState } from 'react';
+import { View, Text, ActivityIndicator, ScrollView, TouchableOpacity } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import HomeHeader from '../components/HomeHeader';
+import { getPurchase } from '../api/services/checkout';
 
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
-
-export default function Purchases() {
-  const { id } = useLocalSearchParams(); // purchase_id
-  const [purchase, setPurchase] = useState(null);
+export default function Purchase({ route, navigation }: any) {
+  const { purchaseId } = route.params; // ID de la compra pasada desde Checkout
   const [loading, setLoading] = useState(true);
+  const [purchase, setPurchase] = useState<any>(null);
 
   useEffect(() => {
-    async function loadPurchase() {
-      if (!id) return;
-
+    async function fetchData() {
       try {
-        const res = await fetch(`${API_BASE_URL}/purchases/${id}`);
-        const data = await res.json();
+        const data = await getPurchase(purchaseId); // ahora sí pasamos el purchase_id
         setPurchase(data);
-      } catch (err) {
-        console.error('Error:', err);
+      } catch (e) {
+        console.log('Error cargando compra', e);
         setPurchase(null);
       } finally {
         setLoading(false);
       }
     }
 
-    loadPurchase();
-  }, [id]);
+    fetchData();
+  }, [purchaseId]);
 
-  if (loading)
+  if (loading) {
     return (
-      <View className="flex-1 items-center justify-center">
-        <ActivityIndicator />
-        <Text className="mt-4 text-black">Cargando compra...</Text>
-      </View>
+      <SafeAreaView className="flex-1 items-center justify-center bg-slate-100">
+        <ActivityIndicator size="large" />
+        <Text className="mt-2">Cargando compra...</Text>
+      </SafeAreaView>
     );
+  }
 
-  if (!purchase)
+  if (!purchase) {
     return (
-      <View>
-        <HomeHeader title="Historial de compras" />
-      </View>
+      <SafeAreaView className="flex-1 bg-slate-100 px-4 pt-4">
+        <View className="items-center rounded-2xl bg-white p-6 shadow-sm">
+          <Text className="text-lg font-semibold text-slate-900">Compra no encontrada</Text>
+          <Text className="mt-2 text-center text-slate-600">
+            No se pudo cargar la información de la compra.
+          </Text>
+
+          <TouchableOpacity
+            className="mt-4 rounded-xl bg-blue-600 px-5 py-3"
+            onPress={() => navigation.navigate('Tabs', { screen: 'HomeTab' })}>
+            <Text className="font-semibold text-white">Buscar eventos</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
     );
+  }
+
+  return (
+    <View className="flex-1 bg-slate-100">
+      <HomeHeader title="Detalle de compra" isHome />
+
+      <ScrollView className="px-4 pb-4 pt-4">
+        <View className="mb-4 rounded-2xl bg-white p-4 shadow-sm">
+          <View className="mb-3 flex-row justify-between">
+            <View className="mr-3 flex-1">
+              <Text className="text-lg font-semibold">{purchase.eventName}</Text>
+              <Text className="mt-2 text-sm text-slate-600">
+                Día: {new Date(purchase.eventDate).toLocaleDateString('es-CL')}
+              </Text>
+              <Text className="text-sm text-slate-600">Ubicación: {purchase.location}</Text>
+            </View>
+
+            <View className="items-end">
+              <Text className="text-xs text-slate-500">Total</Text>
+              <Text className="text-xl font-bold">
+                ${purchase.totalPrice.toLocaleString('es-CL')}
+              </Text>
+            </View>
+          </View>
+
+          <View className="border-t border-slate-200 pt-3">
+            <Text className="mb-2 font-semibold">Tickets</Text>
+
+            {purchase.items.map((item: any, i: number) => (
+              <Text key={i} className="text-slate-700">
+                {item.quantity} × {item.type}
+              </Text>
+            ))}
+          </View>
+
+          <Text className="mt-4 text-xs text-slate-500">
+            Comprado el {new Date(purchase.purchasedAt).toLocaleDateString('es-CL')}
+          </Text>
+        </View>
+      </ScrollView>
+    </View>
+  );
 }

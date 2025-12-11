@@ -106,7 +106,7 @@ export default function EventDetail({ route, navigation }: any) {
         {/* Botón pegado abajo */}
         <TouchableOpacity
           className="mx-4 mb-4 mt-2 rounded bg-blue-600 px-4 py-3"
-          onPress={() => navigation.navigate('Checkout', { eventId })}>
+          onPress={() => navigation.navigate('Checkout', { eventId: event._id })}>
           <Text className="text-center text-xl font-semibold text-white">Reservar Tickets</Text>
         </TouchableOpacity>
       </View>
