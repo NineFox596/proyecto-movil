@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { useTheme } from '../context/ThemeContext';
 
 type Props = {
   title?: string;
@@ -10,18 +11,29 @@ type Props = {
 };
 
 export default function HomeHeader({ title = '', isHome = false, rightButton }: Props) {
+  const { theme } = useTheme();
+
   return (
-    <SafeAreaView edges={['top']} className="bg-white">
-      <View className="h-20 w-full flex-row items-center justify-between border-b border-gray-200 bg-white px-4 py-4">
+    <SafeAreaView edges={['top']} className={`${theme === 'light' ? 'bg-white' : 'bg-gray-900'}`}>
+      <View
+        className={`h-20 w-full flex-row items-center justify-between border-b px-4 py-4 ${
+          theme === 'light' ? 'border-gray-200 bg-white' : 'border-gray-700 bg-gray-900'
+        }`}>
         <View className="flex-row items-center">
-          {/* Icono solo si es Home */}
           {isHome && (
-            <MaterialCommunityIcons name="ticket" size={24} color="black" className="mr-3" />
+            <MaterialCommunityIcons
+              name="ticket"
+              size={24}
+              color={theme === 'light' ? 'black' : 'white'}
+              className="mr-3"
+            />
           )}
-          <Text className="text-2xl font-bold text-gray-900">{title}</Text>
+          <Text
+            className={`${theme === 'light' ? 'text-gray-900' : 'text-white'} text-2xl font-bold`}>
+            {title}
+          </Text>
         </View>
 
-        {/* Botón a la derecha */}
         <View>{rightButton && <View>{rightButton}</View>}</View>
       </View>
     </SafeAreaView>

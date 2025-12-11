@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, ActivityIndicator, ScrollView } from 'react-native';
+import { View, Text, ScrollView, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CustomHeader from '../components/CustomHeader';
-import type { Purchase } from '../api/types';
+import { Purchase } from '../api/types';
+import { useTheme } from '../context/ThemeContext';
 
-export default function PurchasesScreen() {
+export default function Purchases() {
+  const { theme } = useTheme();
   const [loading, setLoading] = useState(true);
   const [purchases, setPurchases] = useState<Purchase[]>([]);
 
@@ -16,66 +18,90 @@ export default function PurchasesScreen() {
         const list: Purchase[] = raw ? JSON.parse(raw) : [];
         setPurchases(list);
       } catch (e) {
-        console.log('Error cargando compras locales', e);
+        console.log(e);
         setPurchases([]);
       } finally {
         setLoading(false);
       }
     }
-
     loadPurchases();
   }, []);
 
   if (loading) {
     return (
-      <SafeAreaView className="flex-1 items-center justify-center bg-slate-100">
-        <ActivityIndicator size="large" />
-        <Text className="mt-2">Cargando compras...</Text>
+      <SafeAreaView
+        className={`flex-1 items-center justify-center ${theme === 'light' ? 'bg-slate-100' : 'bg-gray-900'}`}>
+        <ActivityIndicator size="large" color={theme === 'light' ? 'black' : 'white'} />
+        <Text className={`${theme === 'light' ? 'text-slate-700' : 'text-white'} mt-2 text-base`}>
+          Cargando compras...
+        </Text>
       </SafeAreaView>
     );
   }
-  return (
-    <View>
-      <CustomHeader title="Mis compras" />
 
+  return (
+    <View className={`${theme === 'light' ? 'bg-slate-100' : 'bg-gray-900'} flex-1`}>
+      <CustomHeader title="Mis compras" />
       <ScrollView className="px-4 pb-14 pt-4" contentContainerStyle={{ paddingBottom: 100 }}>
         {purchases.length === 0 ? (
-          <View className="rounded-2xl bg-white p-6 shadow-sm">
-            <Text className="text-lg font-semibold text-slate-900">
+          <View
+            className={`rounded-2xl p-6 shadow-sm ${theme === 'light' ? 'bg-white' : 'bg-gray-800'}`}>
+            <Text
+              className={`${theme === 'light' ? 'text-slate-900' : 'text-white'} text-xl font-semibold`}>
               Aún no tienes compras guardadas
             </Text>
-            <Text className="mt-2 text-slate-600">
+            <Text
+              className={`${theme === 'light' ? 'text-slate-600' : 'text-gray-300'} mt-2 text-base`}>
               Cuando realices una compra, aparecerá aquí en tu historial local.
             </Text>
           </View>
         ) : (
           purchases.map((purchase) => (
-            <View key={purchase._id} className="mb-3 rounded-2xl bg-white p-4 shadow-sm">
+            <View
+              key={purchase._id}
+              className={`mb-3 rounded-2xl p-4 shadow-sm ${theme === 'light' ? 'bg-white' : 'bg-gray-800'}`}>
               <View className="mb-2 flex-row justify-between">
                 <View className="mr-3 flex-1">
-                  <Text className="text-xs text-slate-500">ID de compra</Text>
-                  <Text className="text-sm font-semibold text-slate-900">{purchase._id}</Text>
-
-                  <Text className="mt-2 text-xs text-slate-600">
+                  <Text
+                    className={`${theme === 'light' ? 'text-slate-500' : 'text-gray-300'} text-sm`}>
+                    ID de compra
+                  </Text>
+                  <Text
+                    className={`${theme === 'light' ? 'text-slate-900' : 'text-white'} text-base font-semibold`}>
+                    {purchase._id}
+                  </Text>
+                  <Text
+                    className={`${theme === 'light' ? 'text-slate-600' : 'text-gray-300'} mt-2 text-sm`}>
                     Confirmada el {new Date(purchase.confirmed_at).toLocaleDateString('es-CL')}
                   </Text>
-
-                  <Text className="text-xs text-slate-600">
+                  <Text
+                    className={`${theme === 'light' ? 'text-slate-600' : 'text-gray-300'} text-sm`}>
                     Comprador: {purchase.buyer.name} ({purchase.buyer.email})
                   </Text>
                 </View>
 
                 <View className="items-end">
-                  <Text className="text-xs text-slate-500">Total</Text>
-                  <Text className="text-lg font-bold text-slate-900">
+                  <Text
+                    className={`${theme === 'light' ? 'text-slate-500' : 'text-gray-300'} text-sm`}>
+                    Total
+                  </Text>
+                  <Text
+                    className={`${theme === 'light' ? 'text-slate-900' : 'text-white'} text-xl font-bold`}>
                     ${purchase.total_price.toLocaleString('es-CL')}
                   </Text>
                 </View>
               </View>
-              <View className="mt-2 border-t border-slate-200 pt-2">
-                <Text className="mb-1 text-xs font-semibold text-slate-900">Tickets</Text>
+
+              <View
+                className={`${theme === 'light' ? 'border-slate-200' : 'border-gray-700'} mt-2 border-t pt-2`}>
+                <Text
+                  className={`${theme === 'light' ? 'text-slate-900' : 'text-white'} mb-1 text-sm font-semibold`}>
+                  Tickets
+                </Text>
                 {purchase.tickets.map((t, i) => (
-                  <Text key={i} className="text-xs text-slate-700">
+                  <Text
+                    key={i}
+                    className={`${theme === 'light' ? 'text-slate-700' : 'text-gray-300'} text-sm`}>
                     {t.code} — {t.type}
                   </Text>
                 ))}
