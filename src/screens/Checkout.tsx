@@ -22,8 +22,14 @@ export default function CheckoutScreen({ route, navigation }: any) {
   const { eventId } = route.params;
   const [event, setEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // Timer
   const [timeLeft, setTimeLeft] = useState(7200);
+
+  // Cantidades dinámicas por ticket
   const [quantities, setQuantities] = useState<{ [ticketId: string]: number }>({});
+
+  // Datos del usuario
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
 
@@ -33,7 +39,7 @@ export default function CheckoutScreen({ route, navigation }: any) {
         const data = await getEvent(eventId);
         setEvent(data);
 
-        // inicializar cantidades
+        // Inicializar cantidades
         const initialQty: { [ticketId: string]: number } = {};
         data.tickets.forEach((t) => (initialQty[t.type] = 0));
         setQuantities(initialQty);
@@ -46,7 +52,7 @@ export default function CheckoutScreen({ route, navigation }: any) {
     fetchEvent();
   }, [eventId]);
 
-  // aca se usa el timer
+  // TIMER AHORA SI
   useEffect(() => {
     if (timeLeft === 0) {
       navigation.navigate('Tabs', { screen: 'HomeTab' });
@@ -67,16 +73,20 @@ export default function CheckoutScreen({ route, navigation }: any) {
       .padStart(2, '0');
     const seconds = (totalSeconds % 60).toString().padStart(2, '0');
 
-    // mostrar HH:MM:SS si hay horas, si no solo MM:SS
+    // Mostrar HH:MM:SS si hay horas
     return hours === '00' ? `${minutes}:${seconds}` : `${hours}:${minutes}:${seconds}`;
   };
 
+  // Total dinámico
   const total = event
     ? event.tickets.reduce((acc, t) => acc + (quantities[t.type] || 0) * t.price, 0)
     : 0;
-  //validacion y suma de los tickets
+
+  // Validaciones
   const isNameValid = /^[a-zA-Z\s]{3,}$/.test(name);
   const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+  // Suma de tickets seleccionados
   const totalTicketsSelected = Object.values(quantities).reduce((a, b) => a + b, 0);
 
   // Función de compra/reserva + checkout
@@ -112,16 +122,27 @@ export default function CheckoutScreen({ route, navigation }: any) {
         items,
       });
 
-      // Checkout con el llamado y guardado en un arreglo
+      // Checkout
       const checkoutResult = await checkout({
         reservation_id: res.reservation_id,
         buyer: { name, email },
       });
+
       const raw = await AsyncStorage.getItem('localPurchases');
       const previous: Purchase[] = raw ? JSON.parse(raw) : [];
+
+      // Evitar duplicados por _id
       const withoutDuplicate = previous.filter((p) => p._id !== checkoutResult._id);
+
+      // Nuevo array: compra más reciente primero
       const updated: Purchase[] = [checkoutResult, ...withoutDuplicate];
+
+      // Guardar el nuevo historial
       await AsyncStorage.setItem('localPurchases', JSON.stringify(updated));
+
+      Alert.alert('Compra realizada con éxito');
+
+      // Navegar a pantalla de éxito
       Alert.alert(
         'Compra completada',
         'Tu compra ha sido realizada con éxito. Puedes verla en "Mis compras".',
@@ -153,8 +174,9 @@ export default function CheckoutScreen({ route, navigation }: any) {
 
   return (
     <SafeAreaView className="flex-1 bg-slate-100">
-      <View className="mt-14 flex-1">
+      <View className="mt-20 flex-1">
         <ScrollView className="flex-1 px-4 pb-32 pt-4">
+          {/* Card Evento */}
           <View className="mb-4 rounded-2xl bg-white p-4 shadow-sm">
             <View className="flex-row items-center">
               <View className="mr-3 h-20 w-20 items-center justify-center rounded-xl bg-slate-200">
@@ -184,7 +206,7 @@ export default function CheckoutScreen({ route, navigation }: any) {
             </View>
           </View>
 
-
+          {/* Card Datos del usuario */}
           <View className="mb-4 rounded-2xl bg-white p-4 shadow-sm">
             <Text className="text-bold mb-2 text-lg text-black">Ingrese sus datos</Text>
             <TextInput
@@ -204,18 +226,18 @@ export default function CheckoutScreen({ route, navigation }: any) {
             />
           </View>
 
-  
+          {/* Card Timer */}
           <View className="mb-4 rounded-2xl bg-white p-4 shadow-sm">
             <Text className="mb-3 text-base text-black">Tiempo restante</Text>
             <View className="items-center rounded-2xl border border-slate-200 py-4">
               <Text className="text-3xl font-bold text-slate-800">{formatTime(timeLeft)}</Text>
             </View>
           </View>
-          
 
+          {/* Tickets dinámicos */}
           <View className="mb-4 rounded-2xl bg-white p-4 pt-5 shadow-sm">
             {event.tickets.map((t) => {
-              const isSoldOut = t.available === 0; // flag de cuando esta agotado
+              const isSoldOut = t.available === 0; // bandera de agotado
               return (
                 <View
                   key={t.type}
@@ -296,4 +318,3 @@ export default function CheckoutScreen({ route, navigation }: any) {
     </SafeAreaView>
   );
 }
-

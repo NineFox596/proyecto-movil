@@ -4,11 +4,11 @@ import { Ionicons } from '@expo/vector-icons';
 
 /* Screens */
 import HomeScreen from '../screens/HomeScreen';
-import Purchases from '../screens/Purchases';
+import Settings from '../screens/Settings';
 
 type RootTabParamList = {
   Home: undefined;
-  Purchases: undefined;
+  Settings: undefined;
 };
 
 const Tab = createBottomTabNavigator<RootTabParamList>();
@@ -30,8 +30,8 @@ export default function RootTabs() {
 
           if (route.name === 'Home') {
             iconName = focused ? 'home' : 'home-outline';
-          } else if (route.name === 'Purchases') {
-            iconName = focused ? 'cart' : 'cart-outline';
+          } else if (route.name === 'Settings') {
+            iconName = focused ? 'settings' : 'settings-outline';
           }
 
           return <Ionicons name={iconName} size={size} color={color} />;
@@ -47,8 +47,8 @@ export default function RootTabs() {
         }}
       />
       <Tab.Screen
-        name="Purchases"
-        component={Purchases}
+        name="Settings"
+        component={Settings}
         options={{
           headerShown: false, // <--- Desactiva el header del navegador
         }}

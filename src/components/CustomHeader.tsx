@@ -13,7 +13,7 @@ export default function CustomHeader({ title = '' }: Props) {
 
   return (
     <SafeAreaView edges={['top']} className="bg-white">
-      <View className="w-full flex-row items-center border-b border-gray-200 bg-white px-4 py-4">
+      <View className="h-20 w-full flex-row items-center border-b border-gray-200 bg-white px-4 py-4">
         {/* Botón atrás */}
         {navigation.canGoBack() ? (
           <TouchableOpacity onPress={() => navigation.goBack()} className="mr-3">
@@ -24,7 +24,7 @@ export default function CustomHeader({ title = '' }: Props) {
         )}
 
         {/* Título */}
-        <Text className="text-xl font-semibold text-gray-900">{title}</Text>
+        <Text className="text-2xl font-semibold text-gray-900">{title}</Text>
       </View>
     </SafeAreaView>
   );

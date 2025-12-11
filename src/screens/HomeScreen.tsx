@@ -21,7 +21,7 @@ export default function HomeScreen({ navigation }: any) {
 
   // FUNCIÓN GENERAL PARA CARGAR EVENTOS
   const fetchEvents = async (
-    pageNumber = 1,
+    pageNumber = 10,
     merge = false,
     opts?: { category?: string; query?: string }
   ) => {
@@ -143,7 +143,7 @@ export default function HomeScreen({ navigation }: any) {
         isHome
         rightButton={
           <TouchableOpacity
-            className="mr-2 rounded border p-1"
+            className="mr-2 rounded border bg-white p-1"
             onPress={() => navigation.navigate('Purchases')}>
             <Ionicons name="receipt-outline" size={24} color="black" />
           </TouchableOpacity>

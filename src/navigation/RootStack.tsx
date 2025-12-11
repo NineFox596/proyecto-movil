@@ -25,7 +25,7 @@ export default function RootStack() {
         options={{ title: 'Detalles del evento' }}
       />
       <Stack.Screen name="Checkout" component={Checkout} options={{ title: 'Cancelar reserva' }} />
-      <Stack.Screen name="Purchases" component={Purchases} />
+      <Stack.Screen name="Purchases" component={Purchases} options={{ title: 'Mis compras' }} />
     </Stack.Navigator>
   );
 }

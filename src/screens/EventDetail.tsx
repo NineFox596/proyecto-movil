@@ -58,7 +58,7 @@ export default function EventDetail({ route, navigation }: any) {
         {event.image ? (
           <Image
             source={{ uri: event.image }}
-            className="mt-14 aspect-[16/9] w-full"
+            className="mt-20 aspect-[16/9] w-full"
             resizeMode="cover"
           />
         ) : (

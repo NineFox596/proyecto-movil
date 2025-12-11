@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, ActivityIndicator, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import HomeHeader from '../components/HomeHeader';
+import CustomHeader from '../components/CustomHeader';
 import type { Purchase } from '../api/types';
 
 export default function PurchasesScreen() {
@@ -36,7 +36,7 @@ export default function PurchasesScreen() {
   }
   return (
     <View>
-      <HomeHeader title="Mis compras" isHome />
+      <CustomHeader title="Mis compras" />
 
       <ScrollView className="px-4 pb-14 pt-4" contentContainerStyle={{ paddingBottom: 100 }}>
         {purchases.length === 0 ? (
