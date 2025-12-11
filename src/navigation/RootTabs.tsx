@@ -7,7 +7,7 @@ import HomeScreen from '../screens/HomeScreen';
 import Purchases from '../screens/Purchases';
 
 type RootTabParamList = {
-  HomeTab: undefined;
+  Home: undefined;
   Purchases: undefined;
 };
 
@@ -17,7 +17,6 @@ export default function RootTabs() {
   return (
     <Tab.Navigator
       screenOptions={({ route }: { route: { name: string } }) => ({
-        headerShown: false,
         tabBarIcon: ({
           focused,
           color,
@@ -29,7 +28,7 @@ export default function RootTabs() {
         }) => {
           let iconName: keyof typeof Ionicons.glyphMap = 'home';
 
-          if (route.name === 'HomeTab') {
+          if (route.name === 'Home') {
             iconName = focused ? 'home' : 'home-outline';
           } else if (route.name === 'Purchases') {
             iconName = focused ? 'cart' : 'cart-outline';
@@ -37,11 +36,23 @@ export default function RootTabs() {
 
           return <Ionicons name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: '#2563EB',
+        tabBarActiveTintColor: '#3e3ef9ff',
         tabBarInactiveTintColor: 'gray',
       })}>
-      <Tab.Screen name="HomeTab" component={HomeScreen} options={{ title: 'Home' }} />
-      <Tab.Screen name="Purchases" component={Purchases} options={{ title: 'Purchases' }} />
+      <Tab.Screen
+        name="Home"
+        component={HomeScreen}
+        options={{
+          headerShown: false, // <--- Desactiva el header del navegador
+        }}
+      />
+      <Tab.Screen
+        name="Purchases"
+        component={Purchases}
+        options={{
+          headerShown: false, // <--- Desactiva el header del navegador
+        }}
+      />
     </Tab.Navigator>
   );
 }

@@ -5,6 +5,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import RootTabs from './RootTabs';
 import EventDetail from '../screens/EventDetail';
 import Checkout from '../screens/Checkout';
+import Purchases from '../screens/Purchases';
 import CustomHeader from '../components/CustomHeader';
 
 const Stack = createNativeStackNavigator();
@@ -23,7 +24,8 @@ export default function RootStack() {
         component={EventDetail}
         options={{ title: 'Detalles del evento' }}
       />
-      <Stack.Screen name="Checkout" component={Checkout} options={{ title: 'Checkout' }} />
+      <Stack.Screen name="Checkout" component={Checkout} options={{ title: 'Cancelar reserva' }} />
+      <Stack.Screen name="Purchases" component={Purchases} />
     </Stack.Navigator>
   );
 }
