@@ -2,6 +2,17 @@
 -npx rn-new proyecto-movil --nativewind --yarn  
 -cd proyecto-movil  
 yarn  
+yarn add dotenv  
+yarn add axios  
+yarn add react-native-safe-area-context  
+yarn add react-native-tab-view  
+yarn add @expo/vector-icons  
+yarn add @react-navigation/bottom-tabs  
+yarn add @react-navigation/elements  
+yarn add @react-navigation/native-stack  
+yarn add @react-navigation/native @react-navigation/native-stack  
+yarn add @react-native-picker/picker
+yarn add @react-native-async-storage/async-storage
 
 # Importante, en cada archivo dentro de /src tener esto   
 import Constants from "expo-constants";  

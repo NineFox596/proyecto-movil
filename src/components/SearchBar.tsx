@@ -3,27 +3,26 @@ import { View, TextInput, TouchableOpacity, Text, ActivityIndicator } from 'reac
 import { Picker } from '@react-native-picker/picker';
 import Constants from 'expo-constants';
 import axios from 'axios';
+import { useTheme } from '../context/ThemeContext';
 
 const API_URL = Constants.expoConfig?.extra?.API_URL as string;
 
-// Tipo de los parámetros que se devuelven al buscar
 interface SearchParams {
   category: string;
   query: string;
 }
 
-// Tipo de las props del componente
 interface SearchBarProps {
   onSearch?: (params: SearchParams) => void;
 }
 
 export default function SearchBar({ onSearch }: SearchBarProps) {
+  const { theme } = useTheme();
   const [categories, setCategories] = useState<string[]>(['todas']);
   const [selectedCategory, setSelectedCategory] = useState<string>('todas');
   const [query, setQuery] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
 
-  // Cargar categorías desde API
   useEffect(() => {
     async function loadCategories() {
       try {
@@ -36,16 +35,14 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
         while (keepFetching) {
           const res = await axios.get(`${API_URL}/events?page=${page}`);
           const events = res.data?.data || [];
-
           allEvents = [...allEvents, ...events];
-
           if (events.length < 20) keepFetching = false;
           else page++;
         }
 
         const uniqueCats = [
           'todas',
-          ...new Set(allEvents.map((e) => e.category?.trim()?.toLowerCase()).filter(Boolean)),
+          ...new Set(allEvents.map((e) => e.category?.trim()).filter(Boolean)),
         ];
 
         setCategories(uniqueCats);
@@ -62,8 +59,6 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
 
   useEffect(() => {
     if (!onSearch) return;
-
-    // Evita que se ejecute al montar por primera vez
     if (selectedCategory === 'todas' && query === '') return;
 
     const timer = setTimeout(() => {
@@ -80,8 +75,12 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
   return (
     <View className="w-full p-4">
       {/* Picker de categorías */}
-      <View className="mb-3 rounded-lg bg-gray-200">
-        <Picker selectedValue={selectedCategory} onValueChange={(val) => setSelectedCategory(val)}>
+      <View className={`mb-3 rounded-lg ${theme === 'light' ? 'bg-gray-200' : 'bg-gray-700'}`}>
+        <Picker
+          selectedValue={selectedCategory}
+          onValueChange={(val) => setSelectedCategory(val)}
+          dropdownIconColor={theme === 'light' ? 'black' : 'white'}
+          style={{ color: theme === 'light' ? 'black' : 'white' }}>
           {categories.map((cat) => (
             <Picker.Item
               key={cat}
@@ -97,20 +96,23 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
       </View>
 
       {/* TextInput + botón */}
-      <View className="flex-row items-center rounded-xl bg-white p-2 shadow">
+      <View
+        className={`flex-row items-center rounded-xl p-2 shadow ${
+          theme === 'light' ? 'bg-white' : 'bg-gray-800'
+        }`}>
         <TextInput
           value={query}
           onChangeText={setQuery}
           placeholder="Buscar evento..."
-          className="flex-1 text-base"
+          placeholderTextColor={theme === 'light' ? '#999' : '#ccc'}
+          className={`flex-1 text-base ${theme === 'light' ? 'text-black' : 'text-white'}`}
           returnKeyType="search"
-          onSubmitEditing={() => {
-            if (onSearch) onSearch({ category: selectedCategory, query });
-          }}
+          onSubmitEditing={handleSearchButton}
         />
 
         <TouchableOpacity
-          className="ml-2 rounded-lg bg-sky-500 px-4 py-2"
+          className="ml-2 rounded-lg px-4 py-2"
+          style={{ backgroundColor: theme === 'light' ? '#3B82F6' : '#2563EB' }}
           onPress={handleSearchButton}>
           <Text className="font-bold text-white">Buscar</Text>
         </TouchableOpacity>
@@ -118,7 +120,7 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
 
       {loading && (
         <View className="mt-3">
-          <ActivityIndicator size="small" />
+          <ActivityIndicator size="small" color={theme === 'light' ? 'black' : 'white'} />
         </View>
       )}
     </View>
