@@ -1,95 +1,88 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, ActivityIndicator, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, ActivityIndicator, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import HomeHeader from '../components/HomeHeader';
-import { getPurchase } from '../api/services/checkout';
+import type { Purchase } from '../api/types';
 
-export default function Purchase({ route, navigation }: any) {
-  const { purchaseId } = route.params; // ID de la compra pasada desde Checkout
+export default function PurchasesScreen() {
   const [loading, setLoading] = useState(true);
-  const [purchase, setPurchase] = useState<any>(null);
+  const [purchases, setPurchases] = useState<Purchase[]>([]);
 
   useEffect(() => {
-    async function fetchData() {
+    async function loadPurchases() {
       try {
-        const data = await getPurchase(purchaseId); // ahora sí pasamos el purchase_id
-        setPurchase(data);
+        const raw = await AsyncStorage.getItem('localPurchases');
+        const list: Purchase[] = raw ? JSON.parse(raw) : [];
+        setPurchases(list);
       } catch (e) {
-        console.log('Error cargando compra', e);
-        setPurchase(null);
+        console.log('Error cargando compras locales', e);
+        setPurchases([]);
       } finally {
         setLoading(false);
       }
     }
 
-    fetchData();
-  }, [purchaseId]);
+    loadPurchases();
+  }, []);
 
   if (loading) {
     return (
       <SafeAreaView className="flex-1 items-center justify-center bg-slate-100">
         <ActivityIndicator size="large" />
-        <Text className="mt-2">Cargando compra...</Text>
+        <Text className="mt-2">Cargando compras...</Text>
       </SafeAreaView>
     );
   }
-
-  if (!purchase) {
-    return (
-      <SafeAreaView className="flex-1 bg-slate-100 px-4 pt-4">
-        <View className="items-center rounded-2xl bg-white p-6 shadow-sm">
-          <Text className="text-lg font-semibold text-slate-900">Compra no encontrada</Text>
-          <Text className="mt-2 text-center text-slate-600">
-            No se pudo cargar la información de la compra.
-          </Text>
-
-          <TouchableOpacity
-            className="mt-4 rounded-xl bg-blue-600 px-5 py-3"
-            onPress={() => navigation.navigate('Tabs', { screen: 'HomeTab' })}>
-            <Text className="font-semibold text-white">Buscar eventos</Text>
-          </TouchableOpacity>
-        </View>
-      </SafeAreaView>
-    );
-  }
-
   return (
-    <View className="flex-1 bg-slate-100">
-      <HomeHeader title="Detalle de compra" isHome />
+    <View>
+      <HomeHeader title="Mis compras" isHome />
 
-      <ScrollView className="px-4 pb-4 pt-4">
-        <View className="mb-4 rounded-2xl bg-white p-4 shadow-sm">
-          <View className="mb-3 flex-row justify-between">
-            <View className="mr-3 flex-1">
-              <Text className="text-lg font-semibold">{purchase.eventName}</Text>
-              <Text className="mt-2 text-sm text-slate-600">
-                Día: {new Date(purchase.eventDate).toLocaleDateString('es-CL')}
-              </Text>
-              <Text className="text-sm text-slate-600">Ubicación: {purchase.location}</Text>
-            </View>
-
-            <View className="items-end">
-              <Text className="text-xs text-slate-500">Total</Text>
-              <Text className="text-xl font-bold">
-                ${purchase.totalPrice.toLocaleString('es-CL')}
-              </Text>
-            </View>
+      <ScrollView className="px-4 pb-14 pt-4" contentContainerStyle={{ paddingBottom: 100 }}>
+        {purchases.length === 0 ? (
+          <View className="rounded-2xl bg-white p-6 shadow-sm">
+            <Text className="text-lg font-semibold text-slate-900">
+              Aún no tienes compras guardadas
+            </Text>
+            <Text className="mt-2 text-slate-600">
+              Cuando realices una compra, aparecerá aquí en tu historial local.
+            </Text>
           </View>
+        ) : (
+          purchases.map((purchase) => (
+            <View key={purchase._id} className="mb-3 rounded-2xl bg-white p-4 shadow-sm">
+              <View className="mb-2 flex-row justify-between">
+                <View className="mr-3 flex-1">
+                  <Text className="text-xs text-slate-500">ID de compra</Text>
+                  <Text className="text-sm font-semibold text-slate-900">{purchase._id}</Text>
 
-          <View className="border-t border-slate-200 pt-3">
-            <Text className="mb-2 font-semibold">Tickets</Text>
+                  <Text className="mt-2 text-xs text-slate-600">
+                    Confirmada el {new Date(purchase.confirmed_at).toLocaleDateString('es-CL')}
+                  </Text>
 
-            {purchase.items.map((item: any, i: number) => (
-              <Text key={i} className="text-slate-700">
-                {item.quantity} × {item.type}
-              </Text>
-            ))}
-          </View>
+                  <Text className="text-xs text-slate-600">
+                    Comprador: {purchase.buyer.name} ({purchase.buyer.email})
+                  </Text>
+                </View>
 
-          <Text className="mt-4 text-xs text-slate-500">
-            Comprado el {new Date(purchase.purchasedAt).toLocaleDateString('es-CL')}
-          </Text>
-        </View>
+                <View className="items-end">
+                  <Text className="text-xs text-slate-500">Total</Text>
+                  <Text className="text-lg font-bold text-slate-900">
+                    ${purchase.total_price.toLocaleString('es-CL')}
+                  </Text>
+                </View>
+              </View>
+              <View className="mt-2 border-t border-slate-200 pt-2">
+                <Text className="mb-1 text-xs font-semibold text-slate-900">Tickets</Text>
+                {purchase.tickets.map((t, i) => (
+                  <Text key={i} className="text-xs text-slate-700">
+                    {t.code} — {t.type}
+                  </Text>
+                ))}
+              </View>
+            </View>
+          ))
+        )}
       </ScrollView>
     </View>
   );

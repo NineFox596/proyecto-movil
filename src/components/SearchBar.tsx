@@ -80,7 +80,7 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
   return (
     <View className="w-full p-1">
       {/* Picker de categorías */}
-      <View className="mx-3 mb-3 mt-2 rounded-lg bg-gray-200">
+      <View className="mx-3 mb-3 mt-2 rounded-lg bg-gray-200 pl-1">
         <Picker selectedValue={selectedCategory} onValueChange={(val) => setSelectedCategory(val)}>
           {categories.map((cat) => (
             <Picker.Item
@@ -97,7 +97,7 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
       </View>
 
       {/* TextInput + botón */}
-      <View className="mx-3 flex-row items-center rounded-xl bg-white p-2 shadow">
+      <View className="mx-3 flex-row items-center rounded-xl bg-white p-2 pl-2 shadow">
         <TextInput
           value={query}
           onChangeText={setQuery}

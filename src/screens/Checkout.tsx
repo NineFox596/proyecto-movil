@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   View,
   Text,
@@ -15,6 +16,7 @@ import { getEvent } from '../api/services/events';
 import { createReservation } from '../api/services/reservations';
 import { checkout } from '../api/services/checkout';
 import { Ionicons } from '@expo/vector-icons';
+import type { Purchase } from '../api/types';
 
 export default function CheckoutScreen({ route, navigation }: any) {
   const { eventId } = route.params;
@@ -63,11 +65,16 @@ export default function CheckoutScreen({ route, navigation }: any) {
   }, [timeLeft, navigation]);
 
   const formatTime = (totalSeconds: number) => {
-    const minutes = Math.floor(totalSeconds / 60)
+    const hours = Math.floor(totalSeconds / 3600)
+      .toString()
+      .padStart(2, '0');
+    const minutes = Math.floor((totalSeconds % 3600) / 60)
       .toString()
       .padStart(2, '0');
     const seconds = (totalSeconds % 60).toString().padStart(2, '0');
-    return `${minutes}:${seconds}`;
+
+    // Mostrar HH:MM:SS si hay horas, si no solo MM:SS
+    return hours === '00' ? `${minutes}:${seconds}` : `${hours}:${minutes}:${seconds}`;
   };
 
   // Total dinámico
@@ -109,16 +116,33 @@ export default function CheckoutScreen({ route, navigation }: any) {
     }
 
     try {
+      // Crear la reserva
       const res = await createReservation({
         event_id: eventId,
         items,
       });
 
+      // Checkout
       const checkoutResult = await checkout({
         reservation_id: res.reservation_id,
         buyer: { name, email },
       });
 
+      const raw = await AsyncStorage.getItem('localPurchases');
+      const previous: Purchase[] = raw ? JSON.parse(raw) : [];
+
+      // Evitar duplicados por _id
+      const withoutDuplicate = previous.filter((p) => p._id !== checkoutResult._id);
+
+      // Nuevo array: compra más reciente primero
+      const updated: Purchase[] = [checkoutResult, ...withoutDuplicate];
+
+      // Guardar el nuevo historial
+      await AsyncStorage.setItem('localPurchases', JSON.stringify(updated));
+
+      Alert.alert('Compra realizada con éxito');
+
+      // Navegar a pantalla de éxito
       Alert.alert(
         'Compra completada',
         'Tu compra ha sido realizada con éxito. Puedes verla en "Mis compras".',
@@ -184,7 +208,7 @@ export default function CheckoutScreen({ route, navigation }: any) {
 
           {/* Card Datos del usuario */}
           <View className="mb-4 rounded-2xl bg-white p-4 shadow-sm">
-            <Text className="text-bold mb-2 text-lg text-slate-700">Ingrese sus datos</Text>
+            <Text className="text-bold mb-2 text-lg text-black">Ingrese sus datos</Text>
             <TextInput
               placeholder="Nombre usuario"
               value={name}
@@ -196,7 +220,7 @@ export default function CheckoutScreen({ route, navigation }: any) {
               placeholder="ejemplo@gmail.com"
               value={email}
               onChangeText={setEmail}
-              className="mt-3 flex-1 rounded border border-gray-300 p-3 text-base"
+              className="mb-3 mt-3 flex-1 rounded border border-gray-300 p-3 text-base"
               keyboardType="email-address"
               autoCapitalize="none"
             />
@@ -204,52 +228,64 @@ export default function CheckoutScreen({ route, navigation }: any) {
 
           {/* Card Timer */}
           <View className="mb-4 rounded-2xl bg-white p-4 shadow-sm">
-            <Text className="mb-3 text-base text-slate-700">Tiempo restante</Text>
+            <Text className="mb-3 text-base text-black">Tiempo restante</Text>
             <View className="items-center rounded-2xl border border-slate-200 py-4">
               <Text className="text-3xl font-bold text-slate-800">{formatTime(timeLeft)}</Text>
             </View>
           </View>
 
           {/* Tickets dinámicos */}
-          <View className="mb-4 rounded-2xl bg-white p-4 shadow-sm">
-            {event.tickets.map((t) => (
-              <View key={t.type} className="mb-4 flex-row items-center justify-between">
-                <View>
-                  <Text className="font-semibold text-slate-800">{t.type}</Text>
-                  <Text className="text-sm text-slate-500">${t.price.toLocaleString('es-CL')}</Text>
-                </View>
-                <View className="flex-row items-center">
-                  <TouchableOpacity
-                    className="h-10 w-10 items-center justify-center rounded-xl border border-slate-200"
-                    onPress={() =>
-                      setQuantities((prev) => ({
-                        ...prev,
-                        [t.type]: Math.max(0, prev[t.type] - 1),
-                      }))
-                    }>
-                    <Text className="text-lg text-slate-700">-</Text>
-                  </TouchableOpacity>
-                  <Text className="mx-4 text-base font-semibold text-slate-800">
-                    {quantities[t.type]}
-                  </Text>
-                  <TouchableOpacity
-                    className={`h-10 w-10 items-center justify-center rounded-xl ${
-                      totalTicketsSelected === 0 ? 'bg-gray-300' : 'bg-slate-900'
-                    }`}
-                    disabled={totalTicketsSelected === 0}
-                    onPress={() =>
-                      setQuantities((prev) => ({ ...prev, [t.type]: prev[t.type] + 1 }))
-                    }>
-                    <Text
-                      className={`text-lg ${
-                        totalTicketsSelected === 0 ? 'text-gray-600' : 'text-white'
-                      }`}>
-                      +
+          <View className="mb-4 rounded-2xl bg-white p-4 pt-5 shadow-sm">
+            {event.tickets.map((t) => {
+              const isSoldOut = t.available === 0; // bandera de agotado
+              return (
+                <View
+                  key={t.type}
+                  className="mb-4 flex-row items-center justify-between opacity-75">
+                  <View>
+                    <Text className="text-lg font-bold text-slate-800">
+                      - {t.type} {isSoldOut && '(Agotado)'}
                     </Text>
-                  </TouchableOpacity>
+                    <Text className="text-base text-sm text-slate-800">
+                      ${t.price.toLocaleString('es-CL')} ({t.available} disponibles)
+                    </Text>
+                  </View>
+                  <View className="flex-row items-center">
+                    <TouchableOpacity
+                      className="h-10 w-10 items-center justify-center rounded-xl border border-slate-200"
+                      onPress={() =>
+                        setQuantities((prev) => ({
+                          ...prev,
+                          [t.type]: Math.max(0, prev[t.type] - 1),
+                        }))
+                      }
+                      disabled={isSoldOut || quantities[t.type] === 0} // no permitir restar si está en 0 o agotado
+                    >
+                      <Text className="text-lg text-slate-700">-</Text>
+                    </TouchableOpacity>
+
+                    <Text className="mx-4 text-base font-semibold text-slate-800">
+                      {quantities[t.type]}
+                    </Text>
+
+                    <TouchableOpacity
+                      className={`h-10 w-10 items-center justify-center rounded-xl ${
+                        isSoldOut ? 'bg-gray-400' : 'bg-slate-900'
+                      }`}
+                      onPress={() =>
+                        setQuantities((prev) => ({
+                          ...prev,
+                          [t.type]: Math.min(t.available, (prev[t.type] || 0) + 1),
+                        }))
+                      }
+                      disabled={isSoldOut} // no permitir aumentar si está agotado
+                    >
+                      <Text className="text-lg text-white">+</Text>
+                    </TouchableOpacity>
+                  </View>
                 </View>
-              </View>
-            ))}
+              );
+            })}
           </View>
 
           {/* Total */}
@@ -265,7 +301,7 @@ export default function CheckoutScreen({ route, navigation }: any) {
 
         {/* Botón inferior fijo */}
         <TouchableOpacity
-          className={`mx-4 mb-4 mt-2 rounded-2xl py-3 ${
+          className={`mx-4 mb-4 mt-2 rounded py-3 ${
             timeLeft === 0 || totalTicketsSelected === 0 ? 'bg-slate-400' : 'bg-blue-600'
           }`}
           disabled={timeLeft === 0 || totalTicketsSelected === 0}

@@ -138,7 +138,17 @@ export default function HomeScreen({ navigation }: any) {
 
   return (
     <View className="flex-1 bg-gray-100">
-      <HomeHeader title="ULA Tickets" isHome />
+      <HomeHeader
+        title="ULA Tickets"
+        isHome
+        rightButton={
+          <TouchableOpacity
+            className="mr-2 rounded border p-1"
+            onPress={() => navigation.navigate('Purchases')}>
+            <Ionicons name="receipt-outline" size={24} color="black" />
+          </TouchableOpacity>
+        }
+      />
 
       <SearchBar onSearch={handleSearch} />
 
