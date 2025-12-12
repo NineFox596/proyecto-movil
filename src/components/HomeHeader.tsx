@@ -23,7 +23,7 @@ export default function HomeHeader({ title = '', isHome = false, rightButton }: 
           {isHome && (
             <MaterialCommunityIcons
               name="ticket"
-              size={24}
+              size={30}
               color={theme === 'light' ? 'black' : 'white'}
               className="mr-3"
             />
